@@ -1,0 +1,63 @@
+# -*- coding: UTF-8 -*-
+import requests
+from bs4 import BeautifulSoup
+import re
+import os
+import sys
+
+header = {'accept': '*/*',
+'accept-language': 'zh-CN,zh;q=0.9',
+'cookie': 'cna=2FOcEoPeD14CAXWXPWuz7eTa; CNZZDATAWAP=722517988-1518531627-http%3A%2F%2Fwwwdoyo.9669.cn',
+'if-modified-since': 'Mon, 02 Apr 2018 11:28:02 GMT',
+'referer': 'https://cl.ae5.xyz/thread0806.php?fid=8',
+'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36'
+}
+all_url = 'https://cl.ae5.xyz/thread0806.php?fid=8'
+start_html = requests.get(all_url,headers = header)
+start_html.encoding = 'GBK'
+#print(start_html.text)
+path = 'D:/girl/'
+for n in range(2,344):
+    ul = all_url + '&search=&page=' + str(n)
+    start_html = requests.get(ul, headers=header)
+    start_html.encoding = 'GBK'
+    href = re.findall('<a.*?href="(.*?)".*?target="_blank".*?>(.*?)</a>',start_html.text)
+    for i in href:
+        title = i[1]
+        if title !='':
+            print("准备爬取: " + title)
+            if (os.path.exists(path + title.strip().replace('?', ''))):
+                # print('目录已存在')
+                flag = 1
+            else:
+                os.makedirs(path + title.strip().replace('?', ''))
+                flag = 0
+            os.chdir(path + title.strip().replace('?', ''))
+            href = i[0]
+            try:
+                if (flag == 1 and len(os.listdir(path + title.strip().replace('?', ''))) >= 344):
+                    print('已经保存完毕，跳过')
+                    continue
+
+                pic = 'https://cl.ae5.xyz/' + href
+                html = requests.get(pic, headers=header)
+                html.encoding = 'GBK'
+                bs = BeautifulSoup(html.text, 'html.parser')
+                res = bs.find_all('div', class_="tpc_content do_not_catch")
+                src = re.findall('<input.*?src="(.*?)"', str(res))
+                for i in src:
+                        print(i)
+                        html = requests.get(i, headers=header)
+                        file_name = i.split(r'/')[-1]
+                        f = open(file_name, 'wb')
+                        f.write(html.content)
+                        f.close()
+            except requests.exceptions.MissingSchema as e:
+                print(e)
+            except requests.exceptions.ConnectionError as w:
+                print(w)
+
+
+
+
+
