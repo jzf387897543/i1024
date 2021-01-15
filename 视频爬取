@@ -1,0 +1,81 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+import os
+
+
+header = {
+        'referer': 'https://cl.ae5.xyz/thread0806.php?fid=22',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36'
+    }
+all_url = 'https://cl.ae5.xyz/thread0806.php?fid=22'
+start_html = requests.get(all_url,headers = header)
+start_html.encoding = 'GBK'
+path = 'E:/demo/'
+for n in range(2,240):
+    ul = all_url + '&search=&page=' + str(n)
+    start_html = requests.get(ul, headers=header)
+    start_html.encoding = 'GBK'
+    href = re.findall('<a.*?href="(.*?)".*?target="_blank".*?>(.*?)</a>', start_html.text)
+    for i in href:
+        titles = i[1].replace('|','').replace(':','').replace('?','')
+        title = re.match('xxxx.*',str(titles))
+        if title:
+            te = title.group()
+            print(te)
+                    #print(title)
+            if (te != ''):
+                print("准备爬取: " + te)
+                if (os.path.exists(path + te.strip().replace('|','').replace(':','').replace('?',''))):
+                # print('目录已存在')
+                    flag = 1
+                else:
+                    os.makedirs(path + te.strip().replace('|','').replace(':','').replace('?',''))
+                    flag = 0
+                os.chdir(path + te.strip().replace('|','').replace(':','').replace('?',''))
+            #print("准备爬取: " + title)
+                href = i[0]
+                try:
+                    if (flag == 1 and len(os.listdir(path + te.strip().replace('|', '').replace(':', '').replace('?',''))) >= 344):
+                        print('已经保存完毕，跳过')
+                        continue
+
+                    movie = 'https://cl.ae5.xyz/' + href
+                    html = requests.get(movie,headers=header)
+                    html.encoding = 'GBK'
+                    bs = BeautifulSoup(html.text, 'html.parser')
+                    res = bs.find_all('div', class_="tpc_content do_not_catch")
+                    src = re.findall('<a href="(.*?)".*?target="_blank"', str(res))
+                    movie_url = src[0].split(r'?')[-1].replace('______', '.').split(r'&')[0]
+                    #print(movie_url)
+                    clfs = re.match(r'http://www.clf2d.com/mp4.*',str(movie_url))
+                    if clfs:
+                        clf = clfs.group()
+                    
+                        print(clf)
+                        rq = requests.get(clf, headers=header)
+                        rq.encoding = 'UTF-8'
+                        bs = BeautifulSoup(rq.text, 'html.parser')
+                        item = bs.find_all('script')
+                        rg = re.findall('source:"(.*?)"', str(item))
+                        detail = rg[0]
+                    
+                        html = requests.get(detail,headers = header)
+                        file_name = detail.split(r'/')[-1]
+                        f = open(file_name, 'wb')
+                        f.write(html.content)
+                        f.close()
+
+
+
+                except requests.exceptions.MissingSchema as e:
+                    print(e)
+                except requests.exceptions.ConnectionError as w:
+                    print(w)
+                except IndexError as t:
+                    print(t)
+
+
+
+
+
