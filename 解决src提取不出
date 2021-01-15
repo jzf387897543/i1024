@@ -1,0 +1,24 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+from pyquery import PyQuery as pq
+from lxml import etree
+
+target = 'https://cl.ae5.xyz/htm_data/22/1804/3108313.html'
+header = {
+'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
+'referer': 'https://cl.ae5.xyz/thread0806.php?fid=22'
+}
+rq = requests.get(target,headers = header )
+rq.encoding = 'GBK'
+bs = BeautifulSoup(rq.text,'html.parser')
+href = bs.find_all('div',class_="tpc_content do_not_catch")
+html = re.findall('<a.*?onclick="(.*?)"',str(href))
+list = html[0]
+src = list.split(r'=')[-1]
+a = src.split("'")[1].split("'")[0]
+rqs = requests.get(a,headers = header)
+rqs.encoding = 'UTF-8'
+doc = pq(rqs.text)
+item = doc('#J_prismPlayer > video')
+print(item)
