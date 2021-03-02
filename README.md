@@ -1,3 +1,3 @@
-# 社区图片爬取 python 
-关于社区（i1024）图片爬取 python
+# 社区图片视频爬取 python 
+关于社区图片和视频爬取 python
 
