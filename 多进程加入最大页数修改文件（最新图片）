@@ -7,9 +7,9 @@ import re
 
 
 def get_max_page():
-    url = 'https://cl.ae5.xyz/thread0806.php?fid=8&search=&page=2'
+    url = 'https://aacl.ae5.xyz/thread0806.php?fid=8&search=&page=2'
     header = {
-        'referer': 'https://cl.ae5.xyz/thread0806.php?fid=8',
+        'referer': 'https://aacl.ae5.xyz/thread0806.php?fid=8',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36'
     }
     rq = requests.get(url, headers=header)
